@@ -91,7 +91,7 @@ function App() {
         <p>Select a file to show details</p>
       )}
 
-      {isFilePicked && <button onClick={handleSubmission}>Submit</button>}
+      {isFilePicked && <button onClick={handleSubmission}>Upload!</button>}
       {isDataProcessed && (
         <React.Fragment>
           <h1>Congrats!! We Uploaded the following records</h1>

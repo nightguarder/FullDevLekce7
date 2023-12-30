@@ -94,7 +94,7 @@ function App() {
       {isFilePicked && <button onClick={handleSubmission}>Upload!</button>}
       {isDataProcessed && (
         <React.Fragment>
-          <h1>Congrats!! We Uploaded the following records</h1>
+          <h1>Congrats!! The following records were uploaded</h1>
           <ul>
             {processedData.map((record, index) => {
               return (

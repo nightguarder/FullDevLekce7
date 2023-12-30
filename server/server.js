@@ -15,11 +15,14 @@ const HOST = process.env.HOST || 'localhost'
 const PORT = process.env.PORT || "5000"
 dotenv.config();
 
+app.options('*', cors());
+
 //CORS config
 app.use(cors()); 
 app.use(cors({
     origin:['*'],
     methods:['GET','POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true 
   })); 
 
@@ -32,18 +35,15 @@ const s3Client = new S3Client({
 
 //Default endpoint
 app.get('/',(req,res) => {
-    res.send(' Nothing to see here: GET/')
+    res.send(' Nothing to see here... GET/')
 })
 
 app.post('/begin-upload', async (req, res) => {
   //naming has to be same on frontend and here
   let fileName = req.body.fileName;
   let fileType = req.body.fileType;
-
+  //console.log(fileType)
   // Check the file type
-  if (fileName.mimetype !== fileType) {
-    return res.status(400).send('File type does not match.');
-  }
 
   // PutObjeckCommand to S3 bucket
   const command = new PutObjectCommand({
@@ -60,7 +60,7 @@ app.post('/begin-upload', async (req, res) => {
     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
     // Respond with the file location and a fake uploadID
-    response.send({
+    res.send({
       fileLocation: url,
       uploadID: 70,
     });
@@ -87,7 +87,7 @@ app.post('/process-upload', async (req, res) => {
       // Upload the file to S3
       const response = await s3Client.send(command);
   
-      response.json({ success: true, message: 'Image uploaded!' });
+      res.json({ success: true, message: 'Image uploaded!' });
     } catch (error) {
       res.json({ success: false, message: error.message });
     }

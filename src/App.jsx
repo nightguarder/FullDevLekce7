@@ -27,7 +27,8 @@ function App() {
     setIsDataProcessed(true);
     setProcessedData(processedData.results);
   };
-
+  
+  //Create request
   const getUploadData = () => {
     return new Promise((resolve) => {
       const requestOptions = {
@@ -49,7 +50,7 @@ function App() {
       //Set Headers and body
       const requestOptions = {
         method: "PUT",
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": selectedFile.type },
         body: selectedFile,
       };
       //Perform the upload

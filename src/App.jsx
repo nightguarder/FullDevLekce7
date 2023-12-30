@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
@@ -8,6 +6,7 @@ function App() {
   const [isDataProcessed, setIsDataProcessed] = useState(false);
   const [selectedFile, setSelectedFile] = useState();
   const [processedData, setProcessedData] = useState([]);
+  //For the Input File Button
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
     setIsFilePicked(true);
@@ -23,8 +22,8 @@ function App() {
     //Wait for upload
     await uploadToAWS(fileLocation);
 
-    //Step 3 we tell our server we are done with the upload
-    let processedData = await tellServerComplete(uploadID);
+    //wait for the completed upload request from AWS
+    let processedData = await UploadComplete(uploadID);
     setIsDataProcessed(true);
     setProcessedData(processedData.results);
   };
@@ -47,7 +46,7 @@ function App() {
 
   const uploadToAWS = (fileLocation) => {
     return new Promise((resolve) => {
-      //Make put request with raw file as body
+      //Set Headers and body
       const requestOptions = {
         method: "PUT",
         headers: { "Content-Type": "multipart/form-data" },
@@ -65,8 +64,8 @@ function App() {
         });
     });
   };
-  //handle when the upload is done 
-  const tellServerComplete = (uploadID) => {
+  //Request when the upload is done 
+  const UploadComplete = (uploadID) => {
     return new Promise((resolve) => {
       const requestOptions = {
         method: "POST",

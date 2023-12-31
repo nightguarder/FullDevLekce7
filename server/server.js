@@ -2,9 +2,8 @@ import express from 'express'
 import cors from 'cors';
 import fileUpload from 'express-fileupload'
 import dotenv from 'dotenv';
-import {PutObjectCommand} from '@aws-sdk/client-s3';
-import { S3Instance, fileUrl} from './AWSClient.js'
-import { getSignedUrl} from "@aws-sdk/s3-request-presigner";
+import {ListBucketsCommand, ListObjectsCommand} from '@aws-sdk/client-s3';
+import { S3Instance, generateUploadUrl, bucket,region} from './AWSClient.js'
 //Express setup
 const app = express();
 app.use(express.json())
@@ -21,7 +20,8 @@ app.use(cors({
     origin:['http://localhost:5173', '*'],
     methods:['GET','POST', 'DELETE', 'PUT'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true 
+    credentials: true, 
+    exposedHeaders: 'Location'
   })); 
 
 
@@ -30,39 +30,32 @@ app.get('/',(req,res) => {
     res.send(' Nothing to see here... GET/')
 })
 
-app.post('/begin-upload', async (req, res) => {
-  //naming has to be same on frontend and here
-  let fileName = req.body.fileName;
-  let fileType = req.body.fileType;
-  const signedUrlExpireSeconds = 60 * 5; //10 minutes
-
-  let fullUrl = `${fileUrl}${fileName}`;
-  
-  let uploadParams = {Key:fileName, Bucket: process.env.AWS_BUCKET_NAME, ContentType: fileType }
-  // S3 command for SignedUrl
-  const command = new PutObjectCommand({uploadParams});
-  try {
-    // Get the signed URL for the S3 PUT operation
-    const url = await getSignedUrl(S3Instance, command, signedUrlExpireSeconds);
-    console.log(url)
-    // Respond with the uploaded file URL
-    res.send({
-      fileLocation: url,
-      fileUrl: fullUrl
-    });
-  } catch (error) {
-    res.json({ success: false, message: error.message });
-  }
-
+//AWS upload
+app.post('/begin-upload', async function (req, res) {
+    try {
+        const type = req.body.type;
+        //console.log(type)
+        if (!type) {
+          return res.status(400).json("invalid request body");
+        }
+        //This will generate S3 Signed Upload url
+        const data = await generateUploadUrl(type);
+        console.log('Data from generateUploadUrl:', data);
+        return res.json(data);
+      } catch (e) {
+        console.error('Error in /begin-upload:', e);
+        return res.status(500).json(e.message);
+      }
 });
-
-app.post('/process-upload', async (req, res) => {
-
-    
-  });
+//Respond with the url of the uploaded file
+app.post('/process-upload', async function (req, res) {
+    const uploadID = req.body.uploadID;
+    const fileUrl = `https://${bucket}.s3.${region}.amazonaws.com/${uploadID}`;
+    res.send({ fileUrl: fileUrl });
+});
   //List all available S3 buckets
-  app.get('/buckets', async (req, res) => {
-    const command = new AWS3.ListBucketsCommand({}) 
+app.get('/buckets', async (req, res) => {
+    const command = new ListBucketsCommand({}) 
     try {
         const { Owner, Buckets } = await S3Instance.send(command)
         res.json({
@@ -77,6 +70,20 @@ app.post('/process-upload', async (req, res) => {
     }
 })
 
+//List all available files in /fulldevlekce7/public
+app.get('/files', async (req, res) => {
+    const command = new ListObjectsCommand({ Bucket: process.env.AWS_BUCKET_NAME, Prefix: 'public/' }) 
+    try {
+        const data = await S3Instance.send(command);
+        const files = data.Contents.map(file => file.Key);
+        res.json(files);
+    } catch(e) {
+        console.error(e);
+        res.status(400).json({
+            error: e.message
+        });
+    }
+});
 app.listen(PORT, HOST, () => {
     console.log(`Server is running at http://${HOST}:${PORT}`);
   });

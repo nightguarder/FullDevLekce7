@@ -1,53 +1,27 @@
 # FullDevLekce7
+- React application that will upload any file to the AWS S3 Bucket using ExpressJS as middleman.
+
+![AppScheme](public/schemaAPP.png)
 
 ## Domácí úkol 7
 
 - Deadline: 1.1.2024 23:59
-- Počet bodů: 10
 
 __Cílem tohoto úkolu je implementovat modul pro file storage__
 
 - implementuj modul `FileStorage`, ktery bude mít následující metody
-    - upload - pro nahrání souboru
-    - download - pro stažení/vrácení obsahu souboru
-    - delete - smazání souboru
-    - list - seznam souborů
+    -  [x] upload - pro nahrání souboru
+    - [x] download - pro stažení/vrácení obsahu souboru
+    - [ ] delete - smazání souboru //Still buggy 
+    - [x] list - seznam souborů
 - pro jednoduchost není třeba uvažovat složky, pouze flat strukturu
-- samozřejmě pokud chcete implementujte i složky 😃
-- implementuj driver pro
-    - lokální filesytém - `LocalFilesystemDriver`
-    - S3 - `S3Driver`
-- jak budu vypadat interface je na tobě. Tady je můj nápad jak by to mohlo vypadat, držet se toho nemusíš 🙂
+- [x] samozřejmě pokud chcete implementujte i složky 😃
 
-```javascript
+## Screenshots
 
-const s3Driver = new S3Driver({
-    // s3 options, secret key, endpoint etc.
-})
-
-const fsDriver = new LocalFilesystemDriver({
-    // local filesystem options
-    path: './public'
-})
-
-
-$storage = new FileStorage({
-    driver: // s3Driver nebo fsDriver
-})
-
-await $storage->upload('file.txt', data)
-await $storage->delete('image_to_delete.jpg')
-
-const list = await $storage->list()
-
-const data = await $storage->download('file.txt')
-
-```
-
+![AWSScreenshot](public/AWSupload.png))
 
 ## Notes
-
-
 - jelikož `@aws-sdk` je jako ES modul, tak bude třeba udělat i aplikaci jako `type: module` (viz. [package.json v lesson7-s3](../lesson7-s3/package.json))
 - doporučuju používat třidy, jak na to v rychlosti zde: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 
@@ -55,6 +29,7 @@ const data = await $storage->download('file.txt')
 
 ```javascript
 
-pnpm i express cors aws-sdk dotenv
+``pnpm i express cors dotenv uuid aws-sdk @aws-sdk/client-s3``
 
 ```
+- To generate a S3SignedUrl (basically a Token) I am using ``@aws-sdk/s3-presigned-post``. 

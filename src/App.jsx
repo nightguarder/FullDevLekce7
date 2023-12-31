@@ -15,22 +15,23 @@ function App() {
   //After file is submitted
   const handleSubmission = async () => {
     
+    //1. Request to upload
     let uploadData = await getUploadData();
-    let uploadID = uploadData.uploadID;
     let fileLocation = uploadData.fileLocation;
+    let fileUrl = uploadData.fileUrl;
 
-    //Wait for upload
+    //2. Wait for upload
     await uploadToAWS(fileLocation);
 
     //wait for the completed upload request from AWS
-    let processedData = await UploadComplete(uploadID);
+    let processedData = await UploadComplete(fileUrl);
     setIsDataProcessed(true);
     setProcessedData(processedData.results);
   };
-  
-  //Create request
+
+  //1. Prepare request and upload data
   const getUploadData = () => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,33 +42,30 @@ function App() {
       };
       fetch("http://localhost:5000/begin-upload", requestOptions)
         .then((response) => response.json())
-        .then((data) => resolve(data));
+        .then((data) => resolve(data))
+        .catch((error) => reject(error.message));
     });
   };
-
+  //2. Put request to upload
   const uploadToAWS = (fileLocation) => {
-    return new Promise((resolve) => {
-      //Set Headers and body
+    return new Promise((resolve, reject) => {
+      // Configure Headers
       const requestOptions = {
         method: "PUT",
         headers: { "Content-Type": selectedFile.type },
         body: selectedFile,
       };
-      //Perform the upload
       fetch(fileLocation, requestOptions)
         .then((response) => {
           if (response.status === 200) resolve(true);
-          else resolve(false);
+          else reject('Upload failed with status ' + response.status);
         })
-        .catch((error) => {
-          console.log(error);
-          resolve(false);
-        });
+        .catch((error) => reject(error.message));
     });
   };
-  //Request when the upload is done 
+  
   const UploadComplete = (uploadID) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,9 +73,11 @@ function App() {
       };
       fetch("http://localhost:5000/process-upload", requestOptions)
         .then((response) => response.json())
-        .then((data) => resolve(data));
+        .then((data) => resolve(data))
+        .catch((error) => reject(error.message));
     });
   };
+
 
 
   return (

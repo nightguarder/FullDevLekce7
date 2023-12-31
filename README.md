@@ -29,7 +29,7 @@ __Cílem tohoto úkolu je implementovat modul pro file storage__
 
 ```javascript
 
-``pnpm i express cors dotenv uuid aws-sdk @aws-sdk/client-s3``
+pnpm i express cors dotenv uuid aws-sdk @aws-sdk/client-s3
 
 ```
 - To generate a S3SignedUrl (basically a Token) I am using ``@aws-sdk/s3-presigned-post``. 

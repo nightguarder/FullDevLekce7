@@ -7,8 +7,8 @@ dotenv.config();
 //Variables for S3 bucket
 export const bucket = process.env.AWS_BUCKET_NAME //fulldevlekce7
 export const region = process.env.AWS_REGION //eu-north-1
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID //secret
-const secretAccessKey= process.env.AWS_SECRET_ACCESS_KEY //secret
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID //env secret
+const secretAccessKey= process.env.AWS_SECRET_ACCESS_KEY //env secret
 
 //USE AWS Config v3 only!
 export const S3Instance = new S3Client({ 

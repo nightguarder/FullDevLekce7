@@ -39,7 +39,7 @@ function App() {
       formData.append(key, value);
     });
     formData.append("file", file);
-
+    //Uploading directly to S3 bucket
     const res = await fetch(presignedPost.url, {
       method: "POST",
       body: formData,
@@ -56,7 +56,7 @@ function App() {
 //3. Request to begin-upload (server)
   async function requestPresignedPost(file) {
     const { type } = file;
-    const res = await fetch("http://localhost:5000/begin-upload", {
+    const res = await fetch("http://localhost:5000/upload/presign", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,14 +69,14 @@ function App() {
   }
   //4. Delete the uploaded file.
   const handleDelete = async () => {
-    const res = await fetch('http://localhost:5000/delete-file', {
+    const res = await fetch(`http://localhost:5000/delete`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         bucket: bucket,
-        fileKey: 'public/'+fileKey, // using the stored key
+        fileKey: 'public/' +fileKey, // using the stored key
       }),
     });
   
@@ -87,6 +87,7 @@ function App() {
       setFileKey(null); // clear the key
       alert('File deleted successfully');
     } else {
+      console.error(fileKey)
       alert('Failed to delete file');
     }
   };

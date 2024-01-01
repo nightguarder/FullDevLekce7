@@ -31,7 +31,7 @@ app.get('/',(req,res) => {
 })
 
 //AWS upload
-app.post('/begin-upload', async function (req, res) {
+app.post('/upload/presign', async function (req, res) {
     try {
         const type = req.body.type;
         //console.log(type)
@@ -48,7 +48,7 @@ app.post('/begin-upload', async function (req, res) {
       }
 });
 //Respond with the url of the uploaded file
-app.post('/process-upload', async function (req, res) {
+app.post('/upload', async function (req, res) {
     const uploadID = req.body.fileKey;
     const fileUrl = `https://${bucket}.s3.${region}.amazonaws.com/${uploadID}`;
     res.send({ fileUrl: fileUrl });
@@ -85,17 +85,17 @@ app.get('/files', async (req, res) => {
     }
 });
 //Delete a file with the provided key
-app.delete('/delete-file',async(req,res)=>{
-    const uniqueKey = req.body.fileKey;
-
+app.delete('/delete', async (req, res) => {
+  const uniqueKey = req.body.fileKey; // file key is in the request body
+  const bucket = req.body.bucket;
   const params = {
     Bucket: bucket,
-    Key: 'public/' + uniqueKey
+    Key: uniqueKey
   };
 
   try {
     const data = await S3Instance.deleteObject(params).promise();
-    res.json({ message: `File at  public/${uniqueKey} has been deleted!` });
+    res.json({ message: `File ${uniqueKey} has been deleted from ${bucket}` });
   } 
   catch (error) {
     console.log('ERROR in file Deleting : ' + JSON.stringify(error));
@@ -103,7 +103,7 @@ app.delete('/delete-file',async(req,res)=>{
   }
 });
 
-//Delete the uploaded file
+//Server is running
 app.listen(PORT, HOST, () => {
     console.log(`Server is running at http://${HOST}:${PORT}`);
   });

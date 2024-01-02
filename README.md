@@ -24,7 +24,7 @@ __Cílem tohoto úkolu je implementovat modul pro file storage__
 ## Notes
 - jelikož `@aws-sdk` je jako ES modul, tak bude třeba udělat i aplikaci jako `type: module` (viz. [package.json v lesson7-s3](../lesson7-s3/package.json))
 - doporučuju používat třidy, jak na to v rychlosti zde: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
-
+- AWS3 Presigned tutorial: [AWS upload](https://dev.to/kitsunekyo/upload-to-aws-s3-directly-from-the-browser-js-aws-sdk-v3-1opk)
 ## Dependencies
 
 ```javascript
